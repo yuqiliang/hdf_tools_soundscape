@@ -1,19 +1,22 @@
-[tool.poetry]
+[project]
 name = "hdf_tools_soundscape"
 version = "0.1.0"
-description = "A project for handling HDF tools in soundscape analysis."
-authors = ["Your Name <youremail@example.com>"]
-license = "MIT"
+description = "HEAD acoustics HDF tools for soundscape research"
+readme = "README.md"
+requires-python = ">=3.10"
 
-[tool.poetry.dependencies]
-python = "^3.8"
-numpy = "^1.21"
-pandas = "^1.3"
-scipy = "^1.7"
+dependencies = [
+    "numpy",
+    "matplotlib",
+    "scipy",
+    "ipykernel",   # 用于 Jupyter kernel
+]
 
-[tool.poetry.dev-dependencies]
-pytest = "^6.2"
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
+[tool.uv]
+# 可选：把虚拟环境放在项目本地
+venv = ".venv"
