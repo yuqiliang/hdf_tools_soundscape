@@ -250,12 +250,13 @@ def read_head_file(
     output_stereo : str or None
         If not None, path to save a 2-channel (Left/Right) WAV file.
     output_left : str or None
-        If not None, path to save Left channel as a mono WAV file.
+      If not None, path to save Left channel as a mono WAV file.
     output_right : str or None
         If not None, path to save Right channel as a mono WAV file.
     apply_calibration : bool
         If True, convert raw values to Pa using calibration(dB) from the header.
         If False, return raw float32 values (cast to float64) as stored in the file.
+        If True but calibration is missing in the header, a ValueError is raised.
     header_bytes : int
         Number of bytes to treat as header. If the header explicitly specifies
         "start of data", that value overrides this for the data offset.
@@ -307,8 +308,15 @@ def read_head_file(
 
     # --- Apply calibration (raw -> Pa) or not
     if apply_calibration:
-        cal_left = info.calibration_left_db if info.calibration_left_db is not None else 114.0
-        cal_right = info.calibration_right_db if info.calibration_right_db is not None else 114.0
+        if info.calibration_left_db is None or info.calibration_right_db is None:
+            raise ValueError(
+                "Calibration information is missing in the HDF header for Left and/or Right channels.\n"
+                "Use `inspect_head_hdf(filepath)` to inspect the header, or call\n"
+                "`read_head_file(..., apply_calibration=False)` to get raw values."
+            )
+
+        cal_left = info.calibration_left_db
+        cal_right = info.calibration_right_db
 
         scale_left = P_REF * 10.0 ** (cal_left / 20.0)
         scale_right = P_REF * 10.0 ** (cal_right / 20.0)
@@ -337,6 +345,7 @@ def read_head_file(
         print(f"Saved Right channel WAV to {output_right}")
 
     return audio, fs, info
+
 
 
 def compute_leq_pa(signal_pa: np.ndarray, pref: float = P_REF) -> float:
@@ -497,10 +506,13 @@ def plot_mark_style(
     plt.tight_layout()
 
     if save_path is not None:
-        fig.savefig(save_path, dpi=150)
+        fig.savefig(save_path, dpi=300)
         print(f"Saved figure to {save_path}")
 
     if show:
         plt.show()
+        # Prevent Jupyter from re-displaying the same figure as the cell output
+        plt.close(fig)
+        return None
 
     return fig
