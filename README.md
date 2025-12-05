@@ -19,7 +19,8 @@ This repo provides:
 
 ## Installation
 
-Create and activate a virtual environment if you like, then install dependencies:
+This project uses uv for dependency management and virtual environments.
 
 ```bash
-pip install -r requirements.txt
+uv sync
+
