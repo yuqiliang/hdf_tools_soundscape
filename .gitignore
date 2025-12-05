@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# OS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Virtual env
+venv/
+.env/
+.envrc
+
+# Audio & data
+*.wav
+*.mp3
+*.flac
+*.hdf
+*.HDF
+*.HD*
+*.bin
+
+# Images (optional)
+*.png
+*.jpg
+*.jpeg
+
+# Logs
+*.log
+
+# Build / distribution
+dist/
+build/
+*.egg-info/
