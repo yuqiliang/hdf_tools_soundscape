@@ -9,7 +9,8 @@ dependencies = [
     "numpy",
     "matplotlib",
     "scipy",
-    "ipykernel",   # 用于 Jupyter kernel
+    "ipykernel",
+    "mosqito" 
 ]
 
 [project.optional-dependencies]
@@ -18,5 +19,4 @@ dev = [
 ]
 
 [tool.uv]
-# 可选：把虚拟环境放在项目本地
 venv = ".venv"
