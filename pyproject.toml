@@ -1,3 +1,7 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "hdf_tools_soundscape"
 version = "0.1.0"
@@ -9,14 +13,36 @@ dependencies = [
     "numpy",
     "matplotlib",
     "scipy",
-    "ipykernel",
-    "mosqito" 
+    "mosqito",
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest",
+    "pytest-cov",
+    "ruff",
+    "pre-commit",
+    "ipykernel",
 ]
 
-[tool.uv]
-venv = ".venv"
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+extend-exclude = ["*.ipynb", "output", "tmp", "test files"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+pythonpath = ["src"]

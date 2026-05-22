@@ -2,6 +2,13 @@
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage.xml
+htmlcov/
 
 # OS
 .DS_Store
@@ -10,9 +17,13 @@ __pycache__/
 .ipynb_checkpoints/
 
 # Virtual env
+.venv/
 venv/
+env/
 .env/
 .envrc
+.python-version
+.uv-cache/
 
 # Audio & data
 *.wav
@@ -35,3 +46,6 @@ venv/
 dist/
 build/
 *.egg-info/
+
+# Local temp output
+tmp/
