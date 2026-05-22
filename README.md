@@ -13,8 +13,6 @@ Utilities for processing HEAD acoustics time data (`.hdf`) in soundscape researc
   - Mark Analyzer-style plotting (waveform + level vs. time)
 - `src/hdf_tools_soundscape/psychoacoustics.py`
   - MoSQITo-based loudness, sharpness, and roughness wrappers
-- `head_hdf_utils.py` / `psychoacoustics.py`
-  - Backward-compatible import shims
 - `head_hdf_utils_demo.ipynb`
   - Notebook example workflow
 
@@ -27,8 +25,6 @@ hdf_tools_soundscape/
 │       ├── __init__.py
 │       ├── head_hdf_utils.py
 │       └── psychoacoustics.py
-├── head_hdf_utils.py
-├── psychoacoustics.py
 ├── tests/
 ├── head_hdf_utils_demo.ipynb
 ├── pyproject.toml
