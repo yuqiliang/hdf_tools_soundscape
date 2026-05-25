@@ -34,6 +34,17 @@ except ImportError as e:  # pragma: no cover - gives a clearer error message
     ) from e
 
 
+def _normalize_sampling_rate(fs: float) -> int | float:
+    """Return a stable sampling rate for MoSQITo calls."""
+    if fs <= 0:
+        raise ValueError("fs must be positive.")
+
+    rounded = int(round(fs))
+    if np.isclose(fs, rounded, rtol=0.0, atol=1e-6):
+        return rounded
+    return fs
+
+
 # ----------------------------------------------------------------------
 # Loudness (Zwicker, ISO 532-1, time-varying)
 # ----------------------------------------------------------------------
@@ -77,9 +88,8 @@ def compute_loudness_zwicker(
     """
     # MoSQITo signature:
     # N, N_specific, bark_axis, time_axis = loudness_zwtv(signal, fs, field_type='free')
-    N, N_specific, bark_axis, time_axis = loudness_zwtv(
-        signal_pa, fs, field_type=field_type
-    )
+    fs = _normalize_sampling_rate(fs)
+    N, N_specific, bark_axis, time_axis = loudness_zwtv(signal_pa, fs, field_type=field_type)
 
     return time_axis, N, N_specific, bark_axis
 
@@ -116,6 +126,7 @@ def compute_sharpness_st(
     S : float
         Sharpness value in acum.
     """
+    fs = _normalize_sampling_rate(fs)
     S = sharpness_din_st(
         signal=signal_pa,
         fs=fs,
@@ -161,6 +172,7 @@ def compute_sharpness_tv(
     # MOSQITO signature:
     # S, time_axis = sharpness_din_tv(signal, fs, weighting='din',
     #                                 field_type='free', skip=0)
+    fs = _normalize_sampling_rate(fs)
     S, time_axis = sharpness_din_tv(
         signal=signal_pa,
         fs=fs,
@@ -216,6 +228,7 @@ def compute_roughness_dw(
     """
     # MOSQITO signature:
     # R, R_spec, bark_axis, time_axis = roughness_dw(signal, fs, overlap=0.5)
+    fs = _normalize_sampling_rate(fs)
     R, R_spec, bark_axis, time_axis = roughness_dw(
         signal=signal_pa,
         fs=fs,

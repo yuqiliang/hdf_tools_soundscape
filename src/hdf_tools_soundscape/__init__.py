@@ -6,6 +6,9 @@ Primary APIs are re-exported here for convenient imports.
 from .head_hdf_utils import (
     P_REF,
     HeadHDFInfo,
+    a_weighting_filter,
+    apply_a_weighting,
+    compute_laeq_pa,
     compute_leq_pa,
     compute_rms_spl,
     get_channel_calibration_db,
@@ -24,7 +27,10 @@ __all__ = [
     "get_channel_calibration_db",
     "parse_header_info",
     "read_head_file",
+    "a_weighting_filter",
+    "apply_a_weighting",
     "compute_leq_pa",
+    "compute_laeq_pa",
     "compute_rms_spl",
     "plot_mark_style",
 ]

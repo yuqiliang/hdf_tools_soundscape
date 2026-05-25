@@ -9,7 +9,7 @@ Utilities for processing HEAD acoustics time data (`.hdf`) in soundscape researc
   - Header parsing (start offset, channels, scans, delta, calibration)
   - Left/Right audio extraction with optional calibration to Pa
   - WAV export (stereo / mono)
-  - Leq and short-time RMS SPL calculations
+  - Leq, LAeq, and short-time RMS SPL calculations
   - Mark Analyzer-style plotting (waveform + level vs. time)
 - `src/hdf_tools_soundscape/psychoacoustics.py`
   - MoSQITo-based loudness, sharpness, and roughness wrappers
@@ -80,10 +80,12 @@ uv run pre-commit install
 ## Minimal Usage Example
 
 ```python
-from hdf_tools_soundscape import parse_header_info, read_head_file, plot_mark_style
+from hdf_tools_soundscape import compute_laeq_pa, parse_header_info, read_head_file, plot_mark_style
 
 info = parse_header_info("path/to/file.hdf")
 audio, fs, info = read_head_file("path/to/file.hdf", apply_calibration=True)
+laeq_left = compute_laeq_pa(audio[:, 0], fs)
+laeq_right = compute_laeq_pa(audio[:, 1], fs)
 plot_mark_style(audio, fs, show=True)
 ```
 

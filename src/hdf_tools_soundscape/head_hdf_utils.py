@@ -10,7 +10,7 @@ Features
 - Parse basic sampling info (start of data, number of channels, number of scans, delta value).
 - Read Left / Right audio channels and optionally apply calibration to obtain sound pressure in Pa.
 - Export stereo and mono WAV files.
-- Compute Leq and short-time RMS levels in dB SPL.
+- Compute Leq, LAeq, and short-time RMS levels in dB SPL.
 - Plot a Mark Analyzer-style 2-panel figure: waveform + Level vs. Time.
 
 Notes
@@ -31,6 +31,7 @@ from typing import Optional, Tuple
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.io.wavfile import write
+from scipy.signal import bilinear, lfilter
 
 # Standard reference sound pressure for dB SPL
 P_REF: float = 2e-5  # 20 µPa
@@ -369,6 +370,81 @@ def compute_leq_pa(signal_pa: np.ndarray, pref: float = P_REF) -> float:
     if rms <= 0 or np.isnan(rms):
         return float("-inf")
     return 20.0 * np.log10(rms / pref)
+
+
+def a_weighting_filter(fs: float) -> Tuple[np.ndarray, np.ndarray]:
+    """Design an IEC-style A-weighting filter for the given sampling rate.
+
+    Parameters
+    ----------
+    fs : float
+        Sampling rate in Hz.
+
+    Returns
+    -------
+    b, a : np.ndarray
+        Digital IIR filter coefficients suitable for :func:`scipy.signal.lfilter`.
+    """
+    if fs <= 0:
+        raise ValueError("fs must be positive.")
+
+    f1 = 20.598997
+    f2 = 107.65265
+    f3 = 737.86223
+    f4 = 12194.217
+    a1000 = 1.9997
+
+    nums = [(2.0 * np.pi * f4) ** 2 * (10.0 ** (a1000 / 20.0)), 0.0, 0.0, 0.0, 0.0]
+    dens = np.polymul(
+        [1.0, 4.0 * np.pi * f4, (2.0 * np.pi * f4) ** 2],
+        [1.0, 4.0 * np.pi * f1, (2.0 * np.pi * f1) ** 2],
+    )
+    dens = np.polymul(np.polymul(dens, [1.0, 2.0 * np.pi * f3]), [1.0, 2.0 * np.pi * f2])
+
+    b, a = bilinear(nums, dens, fs=fs)
+    return b, a
+
+
+def apply_a_weighting(signal_pa: np.ndarray, fs: float) -> np.ndarray:
+    """Apply A-weighting to a calibrated pressure signal.
+
+    Parameters
+    ----------
+    signal_pa : np.ndarray
+        1D signal in Pascals.
+    fs : float
+        Sampling rate in Hz.
+
+    Returns
+    -------
+    np.ndarray
+        A-weighted pressure signal in Pascals.
+    """
+    signal_pa = np.asarray(signal_pa, dtype=np.float64)
+    signal_pa = np.clip(signal_pa, -1e6, 1e6)
+    b, a = a_weighting_filter(fs)
+    return lfilter(b, a, signal_pa)
+
+
+def compute_laeq_pa(signal_pa: np.ndarray, fs: float, pref: float = P_REF) -> float:
+    """Compute A-weighted equivalent continuous sound level (LAeq).
+
+    Parameters
+    ----------
+    signal_pa : np.ndarray
+        1D calibrated pressure signal in Pascals.
+    fs : float
+        Sampling rate in Hz.
+    pref : float
+        Reference sound pressure (default = 2e-5 Pa).
+
+    Returns
+    -------
+    float
+        LAeq in dB(A).
+    """
+    weighted = apply_a_weighting(signal_pa, fs)
+    return compute_leq_pa(weighted, pref=pref)
 
 
 def compute_rms_spl(
